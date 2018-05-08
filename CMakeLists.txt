@@ -4,6 +4,7 @@ project(dxl_interface)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED
+        roscpp
         dynamixel_sdk)
 
 catkin_package(
@@ -24,6 +25,7 @@ include_directories(
          include/${PROJECT_NAME}/dxl_interface.h
          src/dxl_motor_builder.cpp
          include/dxl_interface
+         src/example_node.cpp
  )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${${PROJECT_NAME}_gencpp} ${catkin_EXPORTED_TARGETS})
