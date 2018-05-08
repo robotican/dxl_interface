@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+
+    <node name="example_node" pkg="dxl_interface" type="example_node" respawn="false" output="screen">
+
+        <!--dxl motors-->
+        <param name="load_dxl_hw" value="true" />
+        <param name="dxl_port_name" value="/dev/armadillo2/USB2DYNAMIXEL" />
+        <param name="dxl_port_baudrate" value="1000000" />
+        <param name="dxl_protocol" value="2.0" />
+
+    </node>
+
+    <!-- load motors config files -->
+    <rosparam file="$(find dxl_interface)/config/dxl_joints_config.yaml" command="load"/>
+    <rosparam file="$(find dxl_interface)/config/dxl_spec_config.yaml" command="load"/>
+
+</launch>
