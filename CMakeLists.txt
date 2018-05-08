@@ -20,7 +20,10 @@ include_directories(
 
 ## Declare a C++ library
  add_library(${PROJECT_NAME}
-   src/dxl_interface.cpp include/${PROJECT_NAME}/dxl_interface.h
+         src/dxl_interface.cpp
+         include/${PROJECT_NAME}/dxl_interface.h
+         src/dxl_motor_builder.cpp
+         include/dxl_interface
  )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${${PROJECT_NAME}_gencpp} ${catkin_EXPORTED_TARGETS})
