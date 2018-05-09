@@ -29,7 +29,7 @@
 *******************************************************************************/
 /* Author: Elhay Rauper*/
 
-#include "dxl_motors_builder.h"
+#include "dxl_interface/dxl_motor_builder.h"
 
 namespace dxl
 {
@@ -63,6 +63,29 @@ namespace dxl
         }
         else
             ROS_WARN("[armadillo2_hw/dxl_motors_builder]: dxl motors hardware is disabled");
+    }
+
+    bool DxlMotorsBuilder::getMotor(int motor_indx, dxl::motor &motor)
+    {
+        if (motor_indx >= 0 && motor_indx < motors_.size())
+        {
+            motor = motors_[motor_indx];
+            return true;
+        }
+        return false;
+    }
+
+    void DxlMotorsBuilder::setMotorPosition(int motor_indx, double position)
+    {
+        if (motor_indx >= 0 && motor_indx < motors_.size())
+            motors_[motor_indx].command_position = position;
+    }
+
+    void DxlMotorsBuilder::setMotorVelocity(int motor_indx, double velocity)
+    {
+        if (motor_indx >= 0 && motor_indx < motors_.size())
+            if (velocity > 0)
+                motors_[motor_indx].command_velocity = velocity;
     }
 
     void DxlMotorsBuilder::dxlDeadTimerCB(const ros::TimerEvent &event)

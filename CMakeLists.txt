@@ -19,13 +19,17 @@ include_directories(
  ${catkin_INCLUDE_DIRS}
 )
 
+set (PROJECT_FILES
+        src/dxl_interface.cpp
+        include/${PROJECT_NAME}/dxl_interface.h
+        src/dxl_motor_builder.cpp
+        include/dxl_interface
+        src/example_node.cpp
+        )
+
 ## Declare a C++ library
  add_library(${PROJECT_NAME}
-         src/dxl_interface.cpp
-         include/${PROJECT_NAME}/dxl_interface.h
-         src/dxl_motor_builder.cpp
-         include/dxl_interface
-         src/example_node.cpp
+        ${PROJECT_FILES}
  )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${${PROJECT_NAME}_gencpp} ${catkin_EXPORTED_TARGETS})
@@ -33,6 +37,16 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARG
  target_link_libraries(${PROJECT_NAME} #_node
    ${catkin_LIBRARIES}
  )
+
+add_executable(example_node
+        ${PROJECT_FILES}
+        )
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(
+        example_node
+        ${catkin_LIBRARIES}
+)
 
  install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

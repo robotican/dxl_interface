@@ -30,6 +30,7 @@
 /* Author: Elhay Rauper*/
 
 #include <ros/ros.h>
+#include <dxl_interface/dxl_motor_builder.h>
 
 #define LOOP_HZ 100.0
 #define THREADS_NUM 2
@@ -39,24 +40,34 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "example_node");
     ros::NodeHandle nh;
 
+    dxl::DxlMotorsBuilder motors_builder(nh);
+
     ros::Time last_time = ros::Time::now();
 
-    ///////////////////////////////////////TODO: USE DXL BUILDER
 
     while (ros::ok())
     {
-        armadillo_hw.read(); ////////////////////////////////TODO: READ DXL
+        // read all motors state
+        motors_builder.read();
 
+        // sleep shortly between read and write to prevent
+        // motor communication errors
         ros::Duration(1.0 / (2.0 * LOOP_HZ)).sleep();
-
         ros::Duration duration = ros::Time::now() - last_time;
 
-        // update controllers here
+        // set motors commands by hand. If ROS controller is available,
+        // use registerHandles() function on startup, and replace next
+        // 2 lines with contoller_manager.update()
+        motors_builder.setMotorPosition(0, 0);
+        motors_builder.setMotorVelocity(0, 0.1);
 
         last_time = ros::Time::now();
 
-        armadillo_hw.write(); ////////////////////////////////TODO: WRITE DXL
+        // write commands to motors
+        motors_builder.write();
 
+        // sleep shortly between write and read to prevent
+        // motor communication errors
         ros::Duration(1.0 / (2.0 * LOOP_HZ)).sleep();
 
         ros::spinOnce;

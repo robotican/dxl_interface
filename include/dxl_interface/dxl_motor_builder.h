@@ -82,8 +82,9 @@ namespace dxl
         void read();
         void write();
 
-        // writing to single motor, if this motor was build by dxl_builder
-        void writeToMotor(int motor_id, double position, double velocity);
+        bool getMotor(int motor_indx, dxl::motor& motor);
+        void setMotorPosition(int motor_indx, double position);
+        void setMotorVelocity(int motor_indx, double velocity);
 
     private:
 
@@ -128,6 +129,9 @@ namespace dxl
             if (sleep_time > 0)
                 sleep(sleep_time);
         }
+
+        // writing to single motor, if this motor was build by dxl_builder
+        void writeToMotor(int motor_id, double position, double velocity);
     };
 }
 #endif

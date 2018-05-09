@@ -109,9 +109,6 @@ namespace dxl
         double min_vel = 0;
         uint8_t error;
 
-
-
-
         std::string joint_name;
         InterfaceType interface_type;
 
