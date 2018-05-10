@@ -292,10 +292,9 @@ namespace dxl
         {
             bool addparam_success = false;
 
-            /* dxl api interperate 0 ticks velocity as the highest velocity. */
-            /* dxl motor can be very dangerous to operate in high speeds.    */
-            /* following code will protect from sending 0 to motors          */
-
+            // dxl api interperate 0 ticks velocity as the highest velocity.
+            // dxl motor can be very dangerous to operate in high speeds.
+            // following code will protect from sending 0 to motors
             int8_t vel_sign = (motor.command_velocity < 0) ? -1 : 1;
 
             if (fabs(motor.command_velocity) < motor.min_vel)
@@ -304,8 +303,10 @@ namespace dxl
 
             int32_t motor_ticks_vel = convertions::rad_s2ticks_s(motor.command_velocity, motor, protocol_);
 
-            /* last protection layer - if 0 send 1 tick (slowest possible)    */
-            if (motor_ticks_vel == 0)
+            // last protection layer - if 0 send 1 tick (slowest possible)
+            // this protection will be applied only for position mode, because
+            // for velocity mode 0 means stop instead of max velocity
+            if (motor.interface_type == dxl::motor::POSITION && motor_ticks_vel == 0)
                 motor_ticks_vel = vel_sign;
 
             addparam_success = bulk_write.addParam(motor.id,
@@ -383,6 +384,11 @@ namespace dxl
                     const double from_ticks = 1.0 / (motor.spec.cpr / 2.0);
                     return static_cast<double>((ticks) * from_ticks * M_PI);
                 }
+                case (uint16_t)DxlModel::RH_P12_RN:
+                {
+                    // this case return meters for this motor
+                    return static_cast<double>((0.109 / -740) * (ticks - 740));
+                }
             }
         }
         else if (protocol == DXL_PROTOCOL1)
@@ -423,6 +429,11 @@ namespace dxl
                 {
                     double half_cpr = motor.spec.cpr / 2.0f;
                     return static_cast<int32_t>(round((rads / M_PI) * half_cpr));
+                }
+                case (uint16_t)DxlModel::RH_P12_RN:
+                {
+                    // this case return ticks from meters
+                    return static_cast<double>((-740 * rads / 0.109) + 740);
                 }
             }
         }

@@ -44,6 +44,29 @@ dxl_spec_config: [
 },
 
 {
+    name: RH-P12-RN,
+    model: 35073,
+    cpr: 740,
+    rpm_factor: 0.0114,
+    torque_const_a: 4.1,
+    torque_const_b: -2.4,
+    pos_read_addr: 611,             #ADDR_PRO_PRESENT_POSITION
+    vel_read_addr: 615,             #ADDR_PRO_PRESENT_SPEED
+    current_read_addr: 621,         #ADDR_PRO_PRESENT_CURRENT
+    error_read_addr: 892,           #ADDR_PRO_HARDWARE_ERROR
+    torque_write_addr: 562,         #ADDR_PRO_TORQUE_ENABLE
+    goal_torque: 604,               #ADDR_GOAL_TORQUE
+    vel_write_addr: 600,            #ADDR_PRO_GOAL_SPEED
+    pos_write_addr: 596,            #ADDR_PRO_GOAL_POSITION
+    current_ratio: 0.01611328125,   #33000.0 / 2048.0 / 1000.0
+    len_present_speed: 4,
+    len_present_pos: 4,
+    len_present_curr: 2,
+    len_goal_speed: 4,
+    len_goal_pos: 4
+},
+
+{
     name: H42-20-S300-R,
     model: 51200,
     cpr: 303750,

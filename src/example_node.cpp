@@ -33,7 +33,6 @@
 #include <dxl_interface/dxl_motor_builder.h>
 
 #define LOOP_HZ 100.0
-#define THREADS_NUM 2
 
 int main(int argc, char **argv)
 {
@@ -42,7 +41,6 @@ int main(int argc, char **argv)
 
     dxl::DxlMotorsBuilder motors_builder(nh);
 
-    ros::Time last_time = ros::Time::now();
 
 
     while (ros::ok())
@@ -53,7 +51,6 @@ int main(int argc, char **argv)
         // sleep shortly between read and write to prevent
         // motor communication errors
         ros::Duration(1.0 / (2.0 * LOOP_HZ)).sleep();
-        ros::Duration duration = ros::Time::now() - last_time;
 
         // set motors commands by hand. If ROS controller is available,
         // use registerHandles() function on startup, and replace next
@@ -61,7 +58,7 @@ int main(int argc, char **argv)
         motors_builder.setMotorPosition(0, 0);
         motors_builder.setMotorVelocity(0, 0.1);
 
-        last_time = ros::Time::now();
+
 
         // write commands to motors
         motors_builder.write();

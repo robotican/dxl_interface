@@ -59,33 +59,48 @@ namespace dxl
             dxl_dead_timer_.stop();
             ROS_INFO("[armadillo2_hw/dxl_builder]: dxl motors are up");
             espeak_pub_ = nh.advertise<std_msgs::String>("/espeak_node/speak_line", 10);
-            /*speakMsg("dxl motors manager is up", 1);*/
         }
         else
             ROS_WARN("[armadillo2_hw/dxl_motors_builder]: dxl motors hardware is disabled");
     }
 
-    bool DxlMotorsBuilder::getMotor(int motor_indx, dxl::motor &motor)
+    bool DxlMotorsBuilder::getMotor(int motor_id, dxl::motor &motor)
     {
-        if (motor_indx >= 0 && motor_indx < motors_.size())
+        for (const dxl::motor m : motors_)
         {
-            motor = motors_[motor_indx];
-            return true;
+            if (m.id == motor_id)
+            {
+                motor = m;
+                return true;
+            }
         }
         return false;
     }
 
-    void DxlMotorsBuilder::setMotorPosition(int motor_indx, double position)
+    bool DxlMotorsBuilder::setMotorPosition(int motor_id, double position)
     {
-        if (motor_indx >= 0 && motor_indx < motors_.size())
-            motors_[motor_indx].command_position = position;
+        for (dxl::motor& m : motors_)
+        {
+            if (m.id == motor_id)
+            {
+                m.command_position = position;
+                return true;
+            }
+        }
+        return false;
     }
 
-    void DxlMotorsBuilder::setMotorVelocity(int motor_indx, double velocity)
+    bool DxlMotorsBuilder::setMotorVelocity(int motor_id, double velocity)
     {
-        if (motor_indx >= 0 && motor_indx < motors_.size())
-            if (velocity > 0)
-                motors_[motor_indx].command_velocity = velocity;
+        for (dxl::motor& m : motors_)
+        {
+            if (m.id == motor_id)
+            {
+                m.command_velocity = velocity;
+                return true;
+            }
+        }
+        return false;
     }
 
     void DxlMotorsBuilder::dxlDeadTimerCB(const ros::TimerEvent &event)
@@ -716,11 +731,15 @@ namespace dxl
             /* joint command registration */
             switch (motor.interface_type)
             {
-                case dxl::motor::POS:
+                case dxl::motor::POSITION:
 
                     pos_handles_.push_back(hardware_interface::JointHandle (joint_state_interface.getHandle(motor.joint_name),
                                                                             &motor.command_position));
                     position_interface.registerHandle(pos_handles_.back());
+                    break;
+
+                case dxl::motor::VELOCITY:
+                    // TODO: implement velocity handle registration
                     break;
 
                 case dxl::motor::POS_VEL:

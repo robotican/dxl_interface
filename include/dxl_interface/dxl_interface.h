@@ -47,6 +47,7 @@ namespace dxl
 {
     enum class DxlModel
     {
+        RH_P12_RN       = 35073,
         X54_200_S500_R  = 54024,
         X54_100_S500_R  = 53768,
         H42_20_S300_R   = 51200,
@@ -84,14 +85,17 @@ namespace dxl
     {
         enum InterfaceType
         {
-            POS,
+            POSITION,
+            VELOCITY,
             POS_VEL
         };
 
         static InterfaceType stringToInterfaceType(std::string type)
         {
             if (type == "Position")
-                return POS;
+                return POSITION;
+            if (type == "Velocity")
+                return VELOCITY;
             if (type == "PosVel")
                 return POS_VEL;
         }
