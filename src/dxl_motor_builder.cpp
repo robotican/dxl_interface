@@ -77,6 +77,18 @@ namespace dxl
         return false;
     }
 
+    bool DxlMotorsBuilder::setMotorTorque(int motor_id, bool flag)
+    {
+        for (dxl::motor& m : motors_)
+        {
+            if (m.id == motor_id)
+            {
+                return dxl_interface_.setTorque(m, flag);
+            }
+        }
+        return false;
+    }
+
     bool DxlMotorsBuilder::setMotorPosition(int motor_id, double position)
     {
         for (dxl::motor& m : motors_)
@@ -98,6 +110,18 @@ namespace dxl
             {
                 m.command_velocity = velocity;
                 return true;
+            }
+        }
+        return false;
+    }
+
+    bool DxlMotorsBuilder::rebootMotor(int motor_id)
+    {
+        for (dxl::motor& m : motors_)
+        {
+            if (m.id == motor_id)
+            {
+                return dxl_interface_.reboot(m);
             }
         }
         return false;

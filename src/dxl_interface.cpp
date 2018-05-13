@@ -110,8 +110,6 @@ namespace dxl
 
     bool DxlInterface::reboot(const motor &motor)
     {
-
-        // Try reboot
         // Dynamixel LED will flicker while it reboots
         uint8_t error = 0;
         int result = COMM_TX_FAIL;

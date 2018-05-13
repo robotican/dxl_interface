@@ -85,7 +85,8 @@ namespace dxl
         bool getMotor(int motor_indx, dxl::motor& motor);
         bool setMotorPosition(int motor_id, double position);
         bool setMotorVelocity(int motor_id, double velocity);
-
+        bool rebootMotor(int motor_id);
+        bool setMotorTorque(int motor_id, bool flag);
     private:
 
         ros::NodeHandle *nh_;
