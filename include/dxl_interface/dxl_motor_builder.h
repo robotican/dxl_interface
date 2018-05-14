@@ -82,7 +82,7 @@ namespace dxl
         void read();
         void write();
 
-        bool getMotor(int motor_indx, dxl::motor& motor);
+        bool getMotor(int motor_id, dxl::motor& motor);
         bool setMotorPosition(int motor_id, double position);
         bool setMotorVelocity(int motor_id, double velocity);
         bool rebootMotor(int motor_id);
