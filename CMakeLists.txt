@@ -21,10 +21,18 @@ include_directories(
 
 set (PROJECT_FILES
         src/dxl_interface.cpp
-        include/${PROJECT_NAME}/dxl_interface.h
-        src/dxl_motor_builder.cpp
-        include/dxl_interface
+        src/motors_builder.cpp
         src/example_node.cpp
+
+        include/${PROJECT_NAME}/dxl_interface.h
+        include/${PROJECT_NAME}/motor.h
+        include/${PROJECT_NAME}/model.h
+        include/${PROJECT_NAME}/math.h
+        include/${PROJECT_NAME}/spec.h
+        include/${PROJECT_NAME}/motors_builder.h
+        include/${PROJECT_NAME}/protocol.h
+        include/${PROJECT_NAME}/exceptions
+
         )
 
 ## Declare a C++ library

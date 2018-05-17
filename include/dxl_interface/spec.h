@@ -29,58 +29,40 @@
 *******************************************************************************/
 /* Author: Elhay Rauper*/
 
+#ifndef DXL_INTERFACE_SPEC_H
+#define DXL_INTERFACE_SPEC_H
 
-
-#ifndef ARMADILLO2_HW_ARM_INTERFACE_H
-#define ARMADILLO2_HW_ARM_INTERFACE_H
-
-#include <iostream>
-#include <stdint.h>
-#include <cmath>
-#include <dynamixel_sdk/dynamixel_sdk.h>
-#include <dxl_interface/protocol.h>
-#include <dxl_interface/math.h>
-#include <dxl_interface/motor.h>
+#include <cstdint>
+#include <string>
 
 namespace dxl
 {
-    class DxlInterface
+    struct spec
     {
+        std::string name;
+        uint16_t model = 0;
+        float torque_const_a = 0;
+        float torque_const_b = 0;
+        int cpr = 0;
+        double rpm_scale_factor = 0;
+        double current_ratio = 0;
 
-    private:
-        dynamixel::PacketHandler *pkt_handler_;
-        dynamixel::PortHandler *port_handler_;
-        float protocol_;
+        uint16_t pos_read_addr = 0;
+        uint16_t vel_read_addr = 0;
+        uint16_t current_read_addr = 0;
+        uint16_t error_read_addr = 0;
 
-        bool loadProtocol(uint16_t protocol);
+        uint16_t torque_write_addr = 0;
+        uint16_t vel_write_addr = 0;
+        uint16_t pos_write_addr = 0;
 
-    public:
-
-        enum PortState
-        {
-            PORT_FAIL,
-            BAUDRATE_FAIL,
-            INVALID_PROTOCOL,
-            SUCCESS
-        };
-
-        DxlInterface();
-        ~DxlInterface();
-        PortState openPort(std::string port_name,
-                           unsigned int baudrate,
-                           float protocol);
-        bool ping (Motor & motor);
-        bool setTorque(Motor &motor, bool flag);
-        bool bulkWriteVelocity(std::vector<Motor> & motors);
-        bool bulkWritePosition(std::vector<Motor> & motors);
-        bool readMotorsPos(std::vector<Motor> & motors);
-        bool readMotorsVel(std::vector<Motor> & motors);
-        bool readMotorsLoad(std::vector<Motor> &motors);
-        bool readMotorsError(std::vector<Motor> & motors);
-        bool reboot(const Motor &motor);
-        bool broadcastPing(std::vector<uint8_t> result_vec, uint16_t protocol);
+        uint16_t len_present_speed = 0;
+        uint16_t len_present_pos = 0;
+        uint16_t len_present_curr = 0;
+        uint16_t len_goal_speed = 0;
+        uint16_t len_goal_pos = 0;
     };
-
 }
 
-#endif //ARMADILLO2_HW_ARM_INTERFACE_H
+
+#endif //DXL_INTERFACE_SPEC_H

@@ -30,7 +30,7 @@
 /* Author: Elhay Rauper*/
 
 #include <ros/ros.h>
-#include <dxl_interface/dxl_motor_builder.h>
+#include <dxl_interface/motors_builder.h>
 
 #define LOOP_HZ 100.0
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "example_node");
     ros::NodeHandle nh;
 
-    dxl::DxlMotorsBuilder motors_builder(nh);
+    dxl::MotorsBuilder motors_builder(nh);
 
 
 

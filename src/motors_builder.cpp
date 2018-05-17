@@ -29,11 +29,11 @@
 *******************************************************************************/
 /* Author: Elhay Rauper*/
 
-#include "dxl_interface/dxl_motor_builder.h"
+#include <dxl_interface/motors_builder.h>
 
 namespace dxl
 {
-    DxlMotorsBuilder::DxlMotorsBuilder(ros::NodeHandle &nh)
+    MotorsBuilder::MotorsBuilder(ros::NodeHandle &nh)
     {
         nh_ = &nh;
         ros::param::get("~load_dxl_hw", load_dxl_hw_);
@@ -48,25 +48,22 @@ namespace dxl
             loadSpecs();
             setTorque(true);
 
-            for (dxl::motor &motor :  motors_)
+            for (Motor &motor :  motors_)
             {
                 ROS_INFO ("[armadillo2_hw/dxl_motors_builder]: done building motor id: %d, model: %d",
                           motor.id, motor.spec.model);
             }
 
-            torque_srv_ = nh_->advertiseService("hardware/dxl_torque", &DxlMotorsBuilder::torqueServiceCB, this);
-            dxl_dead_timer_ = nh.createTimer(ros::Duration(DXL_RECOVER_TIMEOUT), &DxlMotorsBuilder::dxlDeadTimerCB, this);
-            dxl_dead_timer_.stop();
-            ROS_INFO("[armadillo2_hw/dxl_builder]: dxl motors are up");
-            espeak_pub_ = nh.advertise<std_msgs::String>("/espeak_node/speak_line", 10);
+            torque_srv_ = nh_->advertiseService("hardware/dxl_torque", &MotorsBuilder::torqueServiceCB, this);
+            ROS_INFO("[dxl_motor_builder]: dxl motors are up");
         }
         else
-            ROS_WARN("[armadillo2_hw/dxl_motors_builder]: dxl motors hardware is disabled");
+            ROS_WARN("[dxl_motors_builder]: dxl motors hardware is disabled");
     }
 
-    bool DxlMotorsBuilder::getMotor(int motor_id, dxl::motor &motor)
+    bool MotorsBuilder::getMotor(int motor_id, Motor &motor)
     {
-        for (const dxl::motor m : motors_)
+        for (const Motor m : motors_)
         {
             if (m.id == motor_id)
             {
@@ -77,9 +74,9 @@ namespace dxl
         return false;
     }
 
-    bool DxlMotorsBuilder::setMotorTorque(int motor_id, bool flag)
+    bool MotorsBuilder::setMotorTorque(int motor_id, bool flag)
     {
-        for (dxl::motor& m : motors_)
+        for (Motor& m : motors_)
         {
             if (m.id == motor_id)
             {
@@ -89,9 +86,9 @@ namespace dxl
         return false;
     }
 
-    bool DxlMotorsBuilder::setMotorPosition(int motor_id, double position)
+    bool MotorsBuilder::setMotorPosition(int motor_id, double position)
     {
-        for (dxl::motor& m : motors_)
+        for (Motor& m : motors_)
         {
             if (m.id == motor_id)
             {
@@ -102,9 +99,9 @@ namespace dxl
         return false;
     }
 
-    bool DxlMotorsBuilder::setMotorVelocity(int motor_id, double velocity)
+    bool MotorsBuilder::setMotorVelocity(int motor_id, double velocity)
     {
-        for (dxl::motor& m : motors_)
+        for (Motor& m : motors_)
         {
             if (m.id == motor_id)
             {
@@ -115,9 +112,9 @@ namespace dxl
         return false;
     }
 
-    bool DxlMotorsBuilder::rebootMotor(int motor_id)
+    bool MotorsBuilder::rebootMotor(int motor_id)
     {
-        for (dxl::motor& m : motors_)
+        for (Motor& m : motors_)
         {
             if (m.id == motor_id)
             {
@@ -127,42 +124,7 @@ namespace dxl
         return false;
     }
 
-    void DxlMotorsBuilder::dxlDeadTimerCB(const ros::TimerEvent &event)
-    {
-        if (comm_errs_.read_err_pos ||
-            comm_errs_.read_err_vel ||
-            comm_errs_.read_err_load ||
-            comm_errs_.read_err_report)
-        {
-            speakMsg("dxl motors read error", 1);
-            ROS_ERROR("[dxl_motors_builder]: too many read errors, shutting down...");
-            ros::shutdown();
-            exit(EXIT_FAILURE);
-        }
-        else
-        {
-            comm_errs_.failed_reads_ = 0;
-            //ROS_INFO("[dxl_motors_builder]: resetting reads errors");
-        }
-
-        if (comm_errs_.write_err_pos ||
-            comm_errs_.write_err_vel)
-        {
-            speakMsg("dxl motors write error", 1);
-            ROS_ERROR("[dxl_motors_builder]: too many write errors, shutting down...");
-            ros::shutdown();
-            exit(EXIT_FAILURE);
-        }
-        else
-        {
-            comm_errs_.failed_writes_ = 0;
-            //ROS_INFO("[dxl_motors_builder]: resetting writes errors");
-        }
-
-        dxl_dead_timer_.stop();
-    }
-
-    void DxlMotorsBuilder::read()
+    void MotorsBuilder::read()
     {
         if (!load_dxl_hw_)
             return;
@@ -172,54 +134,39 @@ namespace dxl
         if (!dxl_interface_.readMotorsPos(motors_))
         {
             //ROS_ERROR("[dxl_motors_builder]: reading motors position failed");
-            comm_errs_.read_err_pos = true;
-            comm_errs_.failed_reads_++;
+            throw exceptions::ReadPosException("reading motors position failed");
         }
-        else
-            comm_errs_.read_err_pos = false;
 
         if (!dxl_interface_.readMotorsVel(motors_))
         {
             //ROS_ERROR("[dxl_motors_builder]: reading motors velocity failed");
-            comm_errs_.read_err_vel = true;
-            comm_errs_.failed_reads_++;
+            throw exceptions::ReadVelException("reading motors velocity failed");
         }
-        else
-            comm_errs_.read_err_vel = false;
 
         if (!dxl_interface_.readMotorsLoad(motors_))
         {
             //ROS_ERROR("[dxl_motors_builder]: reading motors load failed");
-            comm_errs_.read_err_load = true;
-            comm_errs_.failed_reads_++;
+           throw exceptions::ReadLoadException("reading motors load failed");
         }
-        else
-            comm_errs_.read_err_load = false;
 
         if (!dxl_interface_.readMotorsError(motors_))
         {
             //ROS_ERROR("[dxl_motors_builder]: reading motors errors failed");
-            comm_errs_.read_err_report = true;
-            comm_errs_.failed_reads_++;
+            throw exceptions::ReadErrorException("reading motors load failed");
         }
-        else
-            comm_errs_.read_err_report = false;
-
-        if (comm_errs_.failed_reads_ >= MAX_READ_ERRORS)
-            dxl_dead_timer_.start();
 
         comm_mutex_.unlock();
     }
 
-    void DxlMotorsBuilder::writeToMotor(int motor_id, double position, double velocity)
+    void MotorsBuilder::writeToMotor(int motor_id, double position, double velocity)
     {
         if (!load_dxl_hw_)
             return;
-        for (dxl::motor motor : motors_)
+        for (Motor motor : motors_)
         {
             if (motor.id == motor_id)
             {
-                std::vector<dxl::motor> single_motor_vec;
+                std::vector<Motor> single_motor_vec;
                 motor.command_position = position;
                 motor.command_velocity = velocity;
                 single_motor_vec.push_back(motor);
@@ -228,7 +175,7 @@ namespace dxl
         }
     }
 
-    void DxlMotorsBuilder::write(std::vector<dxl::motor> &motors)
+    void MotorsBuilder::write(std::vector<Motor> &motors)
     {
         if (!load_dxl_hw_)
             return;
@@ -238,39 +185,32 @@ namespace dxl
         if (!dxl_interface_.bulkWriteVelocity(motors))
         {
             //ROS_ERROR("[dxl_motors_builder]: writing velocity failed");
-            comm_errs_.write_err_vel = true;
-            comm_errs_.failed_writes_++;
+            throw exceptions::WriteVelException("writing velocity failed");
         }
-        else
-            comm_errs_.write_err_vel = false;
 
         if (!dxl_interface_.bulkWritePosition(motors))
         {
             //ROS_ERROR("[dxl_motors_builder]: writing postision failed");
-            comm_errs_.write_err_pos = true;
-            comm_errs_.failed_writes_++;
+           throw exceptions::WritePosException("writing position failed");
         }
-        else
-            comm_errs_.write_err_pos = false;
-
-        if (comm_errs_.failed_writes_ >= MAX_WRITE_ERRORS)
-            dxl_dead_timer_.start();
 
         comm_mutex_.unlock();
     }
 
-    void DxlMotorsBuilder::write()
+    void MotorsBuilder::write()
     {
         write(motors_);
     }
 
-    void DxlMotorsBuilder::pingMotors()
+    void MotorsBuilder::pingMotors()
     {
         if (!load_dxl_hw_)
             return;
+
         ros::Duration(1).sleep();
+
         comm_mutex_.lock();
-        for (dxl::motor &motor : motors_)
+        for (Motor &motor : motors_)
         {
             int error_counter = 0;
             while (!dxl_interface_.ping(motor))
@@ -279,7 +219,6 @@ namespace dxl
                 ROS_WARN("[dxl_motors_builder]: pinging motor id: %d failed", motor.id);
                 if (error_counter > MAX_PING_ERRORS)
                 {
-                    speakMsg("too many dxl motor ping errors, shutting down", 1);
                     ROS_ERROR("[dxl_motors_builder]: too many ping errors, motor %d is not responding. \n"
                                       "check if motor crashed (red blink) and try to restart. \n"
                                       "also make sure LATENCY_TIMER is set to 1 in dynamixel_sdk, and that the appropriate"
@@ -293,7 +232,7 @@ namespace dxl
         comm_mutex_.unlock();
     }
 
-    void DxlMotorsBuilder::loadSpecs()
+    void MotorsBuilder::loadSpecs()
     {
         if (!load_dxl_hw_)
             return;
@@ -509,7 +448,7 @@ namespace dxl
         }
 
         /* feed motors with model specs */
-        for (dxl::motor &motor : motors_)
+        for (Motor &motor : motors_)
         {
             bool spec_found = specs_.find(motor.spec.model) != specs_.end();
             if (spec_found)
@@ -548,14 +487,14 @@ namespace dxl
         }
     }
 
-    bool DxlMotorsBuilder::setTorque(bool flag)
+    bool MotorsBuilder::setTorque(bool flag)
     {
         if (!load_dxl_hw_)
             return false;
         comm_mutex_.lock();
         std::string str_flag = flag ? "on" : "off";
         bool success = true;
-        for (dxl::motor &motor : motors_)
+        for (Motor &motor : motors_)
         {
             if (!dxl_interface_.setTorque(motor, flag))
             {
@@ -572,19 +511,19 @@ namespace dxl
         return false;
     }
 
-    bool DxlMotorsBuilder::torqueServiceCB(std_srvs::SetBool::Request  &req,
+    bool MotorsBuilder::torqueServiceCB(std_srvs::SetBool::Request  &req,
                                            std_srvs::SetBool::Response &res)
     {
         if (!load_dxl_hw_)
             return false;
         res.success = false;
-        if (DxlMotorsBuilder::setTorque(req.data))
+        if (MotorsBuilder::setTorque(req.data))
             res.success = true;
         return true;
     }
 
 
-    void DxlMotorsBuilder::fetchParams()
+    void MotorsBuilder::fetchParams()
     {
         if (!load_dxl_hw_)
             return;
@@ -652,7 +591,7 @@ namespace dxl
         }
     }
 
-    void DxlMotorsBuilder::buildMotors()
+    void MotorsBuilder::buildMotors()
     {
         if (!load_dxl_hw_)
             return;
@@ -668,14 +607,15 @@ namespace dxl
                 exit (EXIT_FAILURE);
             }
 
-            struct dxl::motor new_motor;
+            struct Motor new_motor;
 
             /* defaults to prevent bad movement on startup */
             new_motor.command_position = 0.0;
-            new_motor.command_velocity = 0.5;
+            new_motor.command_velocity = 0.2;
             new_motor.min_vel = 0.1;
             new_motor.first_pos_read = true;
 
+            // id
             if(dxl_joints_config_[i]["id"].getType() != XmlRpc::XmlRpcValue::TypeInt) //invalid id field
             {
                 ROS_ERROR("[dxl_motors_builder]: dxl motor id at index %d: invalid data type or missing. "
@@ -685,6 +625,7 @@ namespace dxl
             }
             new_motor.id = static_cast<int>(dxl_joints_config_[i]["id"]);
 
+            // joint_name
             if (dxl_joints_config_[i]["joint_name"].getType() != XmlRpc::XmlRpcValue::TypeString) //invalid joint_name field
             {
                 ROS_ERROR("[dxl_motors_builder]: dxl motor joint_name at index %d: invalid data type or missing. "
@@ -694,6 +635,7 @@ namespace dxl
             }
             new_motor.joint_name = static_cast<std::string>(dxl_joints_config_[i]["joint_name"]);
 
+            // interface
             if (dxl_joints_config_[i]["interface"].getType() != XmlRpc::XmlRpcValue::TypeString) //invalid interface field
             {
                 ROS_ERROR("[dxl_motors_builder]: dxl motor interface_type at index %d: invalid data type or missing. "
@@ -702,8 +644,9 @@ namespace dxl
                 exit (EXIT_FAILURE);
             }
             std::string string_interface_type = static_cast<std::string>(dxl_joints_config_[i]["interface"]);
-            new_motor.interface_type = dxl::motor::stringToInterfaceType(string_interface_type);
+            new_motor.interface_type = Motor::stringToInterfaceType(string_interface_type);
 
+            // direction
             if(dxl_joints_config_[i]["direction"].getType() != XmlRpc::XmlRpcValue::TypeInt) //invalid direction field
             {
                 ROS_ERROR("[dxl_motors_builder]: dxl motor direction at index %d: invalid data type or missing. "
@@ -713,16 +656,7 @@ namespace dxl
             }
             new_motor.direction = static_cast<int>(dxl_joints_config_[i]["direction"]);
 
-            /* load init_vel into command_velocity as initial speed */
-            if(dxl_joints_config_[i]["init_vel"].getType() != XmlRpc::XmlRpcValue::TypeDouble)
-            {
-                ROS_ERROR("[dxl_motors_builder]: dxl motor init_vel at index %d: invalid data type or missing. "
-                                  "make sure that this param exist in dxl_joints_config.yaml and that your launch includes this param file. shutting down...", i);
-                ros::shutdown();
-                exit (EXIT_FAILURE);
-            }
-            new_motor.command_velocity = static_cast<double>(dxl_joints_config_[i]["init_vel"]);
-
+            // min vel
             if(dxl_joints_config_[i]["min_vel"].getType() != XmlRpc::XmlRpcValue::TypeDouble)
             {
                 ROS_ERROR("[dxl_motors_builder]: dxl motor min_vel at index %d: invalid data type or missing. "
@@ -736,13 +670,13 @@ namespace dxl
         }
     }
 
-    void DxlMotorsBuilder::registerHandles(hardware_interface::JointStateInterface &joint_state_interface,
+    void MotorsBuilder::registerHandles(hardware_interface::JointStateInterface &joint_state_interface,
                                            hardware_interface::PositionJointInterface &position_interface,
                                            hardware_interface::PosVelJointInterface &posvel_interface)
     {
         if (!load_dxl_hw_)
             return;
-        for(dxl::motor &motor : motors_)
+        for(Motor &motor : motors_)
         {
             /* joint state registration */
 
@@ -755,18 +689,18 @@ namespace dxl
             /* joint command registration */
             switch (motor.interface_type)
             {
-                case dxl::motor::POSITION:
+                case Motor::POSITION:
 
                     pos_handles_.push_back(hardware_interface::JointHandle (joint_state_interface.getHandle(motor.joint_name),
                                                                             &motor.command_position));
                     position_interface.registerHandle(pos_handles_.back());
                     break;
 
-                case dxl::motor::VELOCITY:
+                case Motor::VELOCITY:
                     // TODO: implement velocity handle registration
                     break;
 
-                case dxl::motor::POS_VEL:
+                case Motor::POS_VEL:
                     posvel_handles_.push_back(hardware_interface::PosVelJointHandle (joint_state_interface.getHandle(motor.joint_name),
                                                                                      &motor.command_position,
                                                                                      &motor.command_velocity));
@@ -776,7 +710,7 @@ namespace dxl
         }
     }
 
-    void DxlMotorsBuilder::openPort()
+    void MotorsBuilder::openPort()
     {
         if (!load_dxl_hw_)
             return;

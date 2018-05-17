@@ -42,11 +42,10 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/posvel_command_interface.h>
 #include <boost/thread.hpp>
+#include <dxl_interface/motor.h>
+#include <dxl_interface/exceptions.h>
 
 #define MAX_PING_ERRORS 5
-#define MAX_READ_ERRORS 100
-#define MAX_WRITE_ERRORS 100
-#define DXL_RECOVER_TIMEOUT 1 //secs
 #define DXL_JOINTS_CONFIG_PARAM "dxl_joints_config"
 #define SPEC_CONFIG_PARAM "dxl_spec_config"
 #define DXL_PROTOCOL_PARAM "~dxl_protocol"
@@ -56,24 +55,11 @@
 
 namespace dxl
 {
-    struct read_write_errs
-    {
-        bool read_err_pos =             false;
-        bool read_err_vel =             false;
-        bool read_err_load =            false;
-        bool read_err_report =          false;
-        int failed_reads_ =             0;
-
-        bool write_err_pos =            false;
-        bool write_err_vel =            false;
-        int failed_writes_ =            0;
-    };
-
-    class DxlMotorsBuilder
+    class MotorsBuilder
     {
     public:
 
-        DxlMotorsBuilder(ros::NodeHandle &nh);
+        MotorsBuilder(ros::NodeHandle &nh);
         void registerHandles(hardware_interface::JointStateInterface &joint_state_interface,
                              hardware_interface::PositionJointInterface &position_interface,
                              hardware_interface::PosVelJointInterface &posvel_interface);
@@ -82,7 +68,7 @@ namespace dxl
         void read();
         void write();
 
-        bool getMotor(int motor_id, dxl::motor& motor);
+        bool getMotor(int motor_id, Motor& motor);
         bool setMotorPosition(int motor_id, double position);
         bool setMotorVelocity(int motor_id, double velocity);
         bool rebootMotor(int motor_id);
@@ -90,13 +76,11 @@ namespace dxl
     private:
 
         ros::NodeHandle *nh_;
-        ros::Timer dxl_dead_timer_;
 
         // handles
         std::vector<hardware_interface::JointStateHandle> joint_state_handles_;
         std::vector<hardware_interface::PosVelJointHandle> posvel_handles_;
         std::vector<hardware_interface::JointHandle> pos_handles_;
-        read_write_errs comm_errs_;
         int dxl_baudrate_ = 0;
         std::string dxl_port_;
         float protocol_ = 0;
@@ -104,9 +88,8 @@ namespace dxl
         std::map<uint16_t, dxl::spec> specs_; // key - model number, value - dxl spec
         dxl::DxlInterface dxl_interface_;
         XmlRpc::XmlRpcValue dxl_joints_config_, dxl_spec_config_;
-        std::vector<dxl::motor> motors_;
+        std::vector<Motor> motors_;
         ros::ServiceServer torque_srv_;
-        ros::Publisher espeak_pub_;
         // prevent parallel access to dxl motors
         boost::mutex comm_mutex_;
 
@@ -120,19 +103,13 @@ namespace dxl
         bool setTorque(bool flag);
         void loadSpecs();
         // writing directly to motor hardware
-        void write(std::vector<dxl::motor> &motors);
+        void write(std::vector<Motor> &motors);
         void dxlDeadTimerCB(const ros::TimerEvent& event);
-        void speakMsg(std::string msg, int sleep_time)
-        {
-            std_msgs::String speak_msg;
-            speak_msg.data = msg;
-            espeak_pub_.publish(speak_msg);
-            if (sleep_time > 0)
-                sleep(sleep_time);
-        }
 
         // writing to single motor, if this motor was build by dxl_builder
         void writeToMotor(int motor_id, double position, double velocity);
+
+        void shutdownAndExit();
     };
 }
 #endif
