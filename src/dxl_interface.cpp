@@ -344,6 +344,7 @@ namespace dxl
                                                    motor.spec.vel_write_addr,
                                                    motor.spec.len_goal_speed,
                                                    (uint8_t*)&motor_ticks_vel);
+
             if (!addparam_success)
                 return false;
         }

@@ -56,7 +56,7 @@ namespace dxl
         double velocity = 0; /* rad/sec */
         double current = 0;
         double command_position = 0;
-        double command_velocity = 0.15;
+        double command_velocity = 0;
         double min_vel = 0;
         double max_vel = 0;
         double max_pos = 0;
