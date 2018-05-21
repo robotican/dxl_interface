@@ -390,4 +390,33 @@ namespace dxl
         bulk_write.clearParam();
         return true;
     }
+
+    bool DxlInterface::bulkWriteGoalTorque(std::vector<Motor> &motors)
+    {
+        dynamixel::GroupBulkWrite bulk_write(port_handler_, pkt_handler_);
+
+        for (Motor &motor : motors)
+        {
+            bool addparam_success = false;
+
+            printf("addr: %i, len: %i, command: %i\n", motor.spec.goal_torque_addr,
+                   motor.spec.len_goal_torque,
+                   motor.command_torque);
+
+            addparam_success = bulk_write.addParam(motor.id,
+                                                   motor.spec.goal_torque_addr,
+                                                   motor.spec.len_goal_torque,
+                                                   (uint8_t*)&motor.command_torque);
+            if (!addparam_success)
+                return false;
+        }
+
+        int8_t comm_result_ = bulk_write.txPacket();
+
+        if (comm_result_ != COMM_SUCCESS)
+            return false;
+
+        bulk_write.clearParam();
+        return true;
+    }
 }

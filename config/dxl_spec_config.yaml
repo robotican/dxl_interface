@@ -11,6 +11,7 @@ dxl_spec_config: [
     current_read_addr: 621,         #ADDR_PRO_PRESENT_CURRENT
     error_read_addr: 892,           #ADDR_PRO_HARDWARE_ERROR
     torque_write_addr: 562,         #ADDR_PRO_TORQUE_ENABLE
+    goal_torque_addr: 604,               #ADDR_GOAL_TORQUE
     vel_write_addr: 600,            #ADDR_PRO_GOAL_SPEED
     pos_write_addr: 596,            #ADDR_PRO_GOAL_POSITION
     current_ratio: 0.01611328125,   #33000.0 / 2048.0 / 1000.0
@@ -18,7 +19,8 @@ dxl_spec_config: [
     len_present_pos: 4,
     len_present_curr: 2,
     len_goal_speed: 4,
-    len_goal_pos: 4
+    len_goal_pos: 4,
+    len_goal_torque: 2
 },
 
 {
@@ -33,6 +35,7 @@ dxl_spec_config: [
     current_read_addr: 621,         #ADDR_PRO_PRESENT_CURRENT
     error_read_addr: 892,           #ADDR_PRO_HARDWARE_ERROR
     torque_write_addr: 562,         #ADDR_PRO_TORQUE_ENABLE
+    goal_torque_addr: 604,               #ADDR_GOAL_TORQUE
     vel_write_addr: 600,            #ADDR_PRO_GOAL_SPEED
     pos_write_addr: 596,            #ADDR_PRO_GOAL_POSITION
     current_ratio: 0.01611328125,   #33000.0 / 2048.0 / 1000.0
@@ -40,7 +43,8 @@ dxl_spec_config: [
     len_present_pos: 4,
     len_present_curr: 2,
     len_goal_speed: 4,
-    len_goal_pos: 4
+    len_goal_pos: 4,
+    len_goal_torque: 2
 },
 
 {
@@ -55,7 +59,7 @@ dxl_spec_config: [
     current_read_addr: 621,         #ADDR_PRO_PRESENT_CURRENT
     error_read_addr: 892,           #ADDR_PRO_HARDWARE_ERROR
     torque_write_addr: 562,         #ADDR_PRO_TORQUE_ENABLE
-    goal_torque: 604,               #ADDR_GOAL_TORQUE
+    goal_torque_addr: 604,               #ADDR_GOAL_TORQUE
     vel_write_addr: 600,            #ADDR_PRO_GOAL_SPEED
     pos_write_addr: 596,            #ADDR_PRO_GOAL_POSITION
     current_ratio: 0.01611328125,   #33000.0 / 2048.0 / 1000.0
@@ -63,7 +67,8 @@ dxl_spec_config: [
     len_present_pos: 4,
     len_present_curr: 2,
     len_goal_speed: 4,
-    len_goal_pos: 4
+    len_goal_pos: 4,
+    len_goal_torque: 2
 },
 
 {
@@ -78,6 +83,7 @@ dxl_spec_config: [
     current_read_addr: 621,         #ADDR_PRO_PRESENT_CURRENT
     error_read_addr: 892,           #ADDR_PRO_HARDWARE_ERROR
     torque_write_addr: 562,         #ADDR_PRO_TORQUE_ENABLE
+    goal_torque_addr: 604,               #ADDR_GOAL_TORQUE
     vel_write_addr: 600,            #ADDR_PRO_GOAL_SPEED
     pos_write_addr: 596,            #ADDR_PRO_GOAL_POSITION
     current_ratio: 0.00402832,      #8250.0 / 2048.0 / 1000.0
@@ -85,7 +91,8 @@ dxl_spec_config: [
     len_present_pos: 4,
     len_present_curr: 2,
     len_goal_speed: 4,
-    len_goal_pos: 4
+    len_goal_pos: 4,
+    len_goal_torque: 2
 },
 
 {
@@ -100,6 +107,7 @@ dxl_spec_config: [
     current_read_addr: 126,         #ADDR_XH_PRESENT_CURRENT
     error_read_addr: 70,            #ADDR_XH_HARDWARE_ERROR
     torque_write_addr: 64,          #ADDR_XH_TORQUE_ENABLE
+    goal_torque_addr: 604,               #ADDR_GOAL_TORQUE
     vel_write_addr: 112,            #ADDR_XH_PROFILE_VELOCITY
     pos_write_addr: 116,            #ADDR_XH_GOAL_POSITION
     current_ratio: 0.00269,         #2.69/1000.0
@@ -107,7 +115,8 @@ dxl_spec_config: [
     len_present_pos: 4,
     len_present_curr: 2,
     len_goal_speed: 4,
-    len_goal_pos: 4
+    len_goal_pos: 4,
+    len_goal_torque: 2
 },
 
 {
@@ -122,6 +131,7 @@ dxl_spec_config: [
     current_read_addr: 126,         #ADDR_MX_PRESENT_LOAD
     error_read_addr: 70,            #ADDR_MX_HARDWARE_ERROR
     torque_write_addr: 64,          #ADDR_MX_TORQUE_ENABLE
+    goal_torque_addr: 604,               #ADDR_GOAL_TORQUE
     vel_write_addr: 112,            #ADDR_MX_PROFILE_VELOCITY
     pos_write_addr: 116,            #ADDR_MX_GOAL_POSITION
     current_ratio: 0.01,            #current *= 0.01; //percentage -100 ~ 100 %
@@ -129,6 +139,7 @@ dxl_spec_config: [
     len_present_pos: 2,
     len_present_curr: 2,
     len_goal_speed: 2,
-    len_goal_pos: 2
+    len_goal_pos: 2,
+    len_goal_torque: 2
 },
 ]

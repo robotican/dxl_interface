@@ -73,6 +73,7 @@ namespace dxl
         bool setTorque(Motor &motor, bool flag);
         bool bulkWriteVelocity(std::vector<Motor> & motors);
         bool bulkWritePosition(std::vector<Motor> & motors);
+        bool bulkWriteGoalTorque(std::vector<Motor> &motors);
         bool readMotorsPos(std::vector<Motor> & motors);
         bool readMotorsVel(std::vector<Motor> & motors);
         bool readMotorsLoad(std::vector<Motor> &motors);

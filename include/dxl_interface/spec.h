@@ -55,12 +55,14 @@ namespace dxl
         uint16_t torque_write_addr = 0;
         uint16_t vel_write_addr = 0;
         uint16_t pos_write_addr = 0;
+        uint16_t goal_torque_addr = 0;
 
         uint16_t len_present_speed = 0;
         uint16_t len_present_pos = 0;
         uint16_t len_present_curr = 0;
         uint16_t len_goal_speed = 0;
         uint16_t len_goal_pos = 0;
+        uint16_t len_goal_torque = 0;
     };
 }
 

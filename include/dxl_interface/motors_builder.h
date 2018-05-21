@@ -73,6 +73,9 @@ namespace dxl
         bool setMotorVelocity(int motor_id, double velocity);
         bool rebootMotor(int motor_id);
         bool setMotorTorque(int motor_id, bool flag);
+
+        void writeGoalTorqueToMotor(int motor_id, int torque);
+
     private:
 
         ros::NodeHandle *nh_;
@@ -108,6 +111,7 @@ namespace dxl
 
         // writing to single motor, if this motor was build by dxl_builder
         void writeToMotor(int motor_id, double position, double velocity);
+
 
         void shutdownAndExit();
     };

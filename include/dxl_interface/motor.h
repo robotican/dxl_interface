@@ -61,6 +61,7 @@ namespace dxl
         double max_vel = 0;
         double max_pos = 0;
         double min_pos = 0;
+        int16_t command_torque = 0;
         bool max_pos_reached = false;
         bool min_pos_reached = false;
         bool in_torque = false;

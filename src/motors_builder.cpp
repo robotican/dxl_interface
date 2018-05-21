@@ -194,6 +194,29 @@ namespace dxl
         }
     }
 
+    void MotorsBuilder::writeGoalTorqueToMotor(int motor_id, int torque)
+    {
+        if (!load_dxl_hw_)
+            return;
+        for (Motor motor : motors_)
+        {
+            if (motor.id == motor_id)
+            {
+                ROS_WARN("ID: %d, len: %d, addr: %d", motor.id, motor.spec.len_goal_torque, motor.spec.goal_torque_addr );
+                std::vector<Motor> single_motor_vec;
+                motor.command_torque = torque;
+                single_motor_vec.push_back(motor);
+
+                comm_mutex_.lock();
+                if (!dxl_interface_.bulkWriteGoalTorque(single_motor_vec))
+                {
+                    ROS_ERROR("[dxl_motors_builder]: writing goal torque failed");
+                }
+                comm_mutex_.unlock();
+            }
+        }
+    }
+
     void MotorsBuilder::write(std::vector<Motor> &motors)
     {
         if (!load_dxl_hw_)
@@ -405,6 +428,17 @@ namespace dxl
             }
             spec.pos_write_addr = static_cast<int>(dxl_spec_config_[i]["pos_write_addr"]);
 
+            /* goal_torque_addr */
+            if(dxl_spec_config_[i]["goal_torque_addr"].getType() != XmlRpc::XmlRpcValue::TypeInt)
+            {
+                ROS_ERROR("[dxl_motors_builder]: spec goal_torque_addr at index %d: invalid data type or missing. "
+                                  "make sure that this param exist in dxl_joints_config.yaml and that your launch includes this param file. shutting down...", i);
+                ros::shutdown();
+                exit (EXIT_FAILURE);
+            }
+            spec.goal_torque_addr = static_cast<int>(dxl_spec_config_[i]["goal_torque_addr"]);
+            ROS_WARN("ADDR: %i", spec.goal_torque_addr);
+
             /* current_ratio */
             if(dxl_spec_config_[i]["current_ratio"].getType() != XmlRpc::XmlRpcValue::TypeDouble)
             {
@@ -465,6 +499,16 @@ namespace dxl
             }
             spec.len_goal_pos = static_cast<int>(dxl_spec_config_[i]["len_goal_pos"]);
 
+            /* len_goal_torque */
+            if(dxl_spec_config_[i]["len_goal_torque"].getType() != XmlRpc::XmlRpcValue::TypeInt)
+            {
+                ROS_ERROR("[dxl_motors_builder]: spec len_goal_torque at index %d: invalid data type or missing. "
+                                  "make sure that this param exist in dxl_joints_config.yaml and that your launch includes this param file. shutting down...", i);
+                ros::shutdown();
+                exit (EXIT_FAILURE);
+            }
+            spec.len_goal_torque = static_cast<int>(dxl_spec_config_[i]["len_goal_torque"]);
+
             specs_[spec.model] = spec;
         }
 
@@ -485,6 +529,7 @@ namespace dxl
                 motor.spec.vel_read_addr = specs_[motor.spec.model].vel_read_addr;
                 motor.spec.current_read_addr = specs_[motor.spec.model].current_read_addr;
                 motor.spec.error_read_addr = specs_[motor.spec.model].error_read_addr;
+                motor.spec.goal_torque_addr = specs_[motor.spec.model].goal_torque_addr;
 
                 /* write addrs */
                 motor.spec.torque_write_addr = specs_[motor.spec.model].torque_write_addr;
@@ -495,8 +540,10 @@ namespace dxl
                 motor.spec.len_present_curr = specs_[motor.spec.model].len_present_curr;
                 motor.spec.len_goal_speed = specs_[motor.spec.model].len_goal_speed;
                 motor.spec.len_goal_pos = specs_[motor.spec.model].len_goal_pos;
+                motor.spec.len_goal_torque = specs_[motor.spec.model].len_goal_torque;
 
                 motor.spec.current_ratio = specs_[motor.spec.model].current_ratio;
+
             }
             else
             {

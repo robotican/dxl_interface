@@ -1,3 +1,5 @@
+# max effort 0 means value is not in use
+
 dxl_joints_config: [
 { #motor model name: X54-200-S500-R, num: 54024
     id: 1,
