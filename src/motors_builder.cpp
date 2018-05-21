@@ -202,7 +202,6 @@ namespace dxl
         {
             if (motor.id == motor_id)
             {
-                ROS_WARN("ID: %d, len: %d, addr: %d", motor.id, motor.spec.len_goal_torque, motor.spec.goal_torque_addr );
                 std::vector<Motor> single_motor_vec;
                 motor.command_torque = torque;
                 single_motor_vec.push_back(motor);
@@ -437,7 +436,6 @@ namespace dxl
                 exit (EXIT_FAILURE);
             }
             spec.goal_torque_addr = static_cast<int>(dxl_spec_config_[i]["goal_torque_addr"]);
-            ROS_WARN("ADDR: %i", spec.goal_torque_addr);
 
             /* current_ratio */
             if(dxl_spec_config_[i]["current_ratio"].getType() != XmlRpc::XmlRpcValue::TypeDouble)

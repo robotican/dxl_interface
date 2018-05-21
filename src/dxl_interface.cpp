@@ -399,10 +399,6 @@ namespace dxl
         {
             bool addparam_success = false;
 
-            printf("addr: %i, len: %i, command: %i\n", motor.spec.goal_torque_addr,
-                   motor.spec.len_goal_torque,
-                   motor.command_torque);
-
             addparam_success = bulk_write.addParam(motor.id,
                                                    motor.spec.goal_torque_addr,
                                                    motor.spec.len_goal_torque,
